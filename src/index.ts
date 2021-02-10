@@ -1,16 +1,14 @@
-import React from "react";
-import { getWindow } from "./mockWindow";
-
-const SUPPORTED_PARAMS_TYPES = [Number, String, Boolean, Date];
+/* eslint-disable no-restricted-syntax */
+import { useEffect, useMemo, useState } from 'react';
 
 /**
  *
  * @param {object} params
  * @returns {URL}
  */
-function setQueryToCurrentUrl(params) {
-  const { URL } = getWindow();
-  const url = new URL(getWindow().location.href);
+function setQueryToCurrentUrl(params: Record<string, any>) {
+  const { URL } = window;
+  const url = new URL(window?.location?.href);
 
   Object.keys(params).forEach((key) => {
     const value = params[key];
@@ -21,10 +19,10 @@ function setQueryToCurrentUrl(params) {
           url.searchParams.append(key, valueItem);
         });
       } else if (value instanceof Date) {
-        if (!isNaN(value.getTime())) {
+        if (!Number.isNaN(value.getTime())) {
           url.searchParams.set(key, value.toISOString());
         }
-      } else if (typeof value === "object") {
+      } else if (typeof value === 'object') {
         url.searchParams.set(key, JSON.stringify(value));
       } else {
         url.searchParams.set(key, value);
@@ -36,29 +34,7 @@ function setQueryToCurrentUrl(params) {
   return url;
 }
 
-function isNoneEmptyPrimitiveArray(input) {
-  return (
-    Array.isArray(input) &&
-    input.length > 0 &&
-    input.every((item) => typeof item === "number" || typeof item === "string" || typeof item === "boolean")
-  );
-}
-
-function validateTypes(types = {}) {
-  const isValidTypes = Object.values(types).every(
-    (type) => SUPPORTED_PARAMS_TYPES.includes(type) || isNoneEmptyPrimitiveArray(type) || typeof type === "function"
-  );
-
-  if (!isValidTypes) {
-    throw new Error(
-      `Unsupported param types. Must be one of [${SUPPORTED_PARAMS_TYPES.map((item) => item.name).join(", ")}]`
-    );
-  }
-}
-
-export function useUrlSearchParams(initial = {}, types) {
-  if (types) validateTypes(types);
-
+export function useUrlSearchParams(initial = {}) {
   /**
    * The main idea of this hook is to make things response to change of `window.location.search`,
    * so no need for introducing new state (in the mean time).
@@ -66,28 +42,30 @@ export function useUrlSearchParams(initial = {}, types) {
    * Whenever the component - user of this hook - re-render, this hook should return
    * the query object that corresponse to the current `window.location.search`
    */
-  const [, forceUpdate] = React.useState();
+  const [, forceUpdate] = useState<Record<string, any>>();
 
-  const locationSearch = getWindow().location.search;
+  const locationSearch = window?.location?.search;
 
   /**
    * @type {URLSearchParams}
    */
-  const urlSearchParams = React.useMemo(() => {
-    return new URLSearchParams(locationSearch);
+  const urlSearchParams = useMemo(() => {
+    return new URLSearchParams(locationSearch || {});
   }, [locationSearch]);
 
-  const params = React.useMemo(() => {
-    let result = [];
-    for (let item of urlSearchParams) {
+  const params = useMemo(() => {
+    if (typeof window === undefined || !window.URL) return {};
+    let result: any = [];
+    // @ts-ignore
+    for (const item of urlSearchParams) {
       result.push({
         key: item[0],
         value: item[1],
       });
     }
 
-    //group by key
-    result = result.reduce((acc, val) => {
+    // group by key
+    result = result.reduce((acc: any, val: any) => {
       (acc[val.key] = acc[val.key] || []).push(val);
       return acc;
     }, {});
@@ -96,49 +74,51 @@ export function useUrlSearchParams(initial = {}, types) {
       const valueGroup = result[key];
       if (valueGroup.length === 1) {
         return [key, valueGroup[0].value];
-      } else {
-        return [key, valueGroup.map(({ value }) => value)];
       }
+      return [key, valueGroup.map(({ value }: { value: any }) => value)];
     });
 
-    const params = { ...initial };
+    const newParams = { ...initial };
 
-    result.forEach(([key, value]) => {
-      params[key] = parseValue(key, value, types, initial);
+    result.forEach(([key, value]: any[]) => {
+      newParams[key] = parseValue(key, value, {}, initial);
     });
 
-    return params;
+    return newParams;
   }, [urlSearchParams]);
 
-  function redirectToNewSearchParams(params) {
-    const url = setQueryToCurrentUrl(params);
-
-    if (getWindow().location.search !== url.search) {
-      getWindow().history.pushState({}, "", url);
+  function redirectToNewSearchParams(newParams: Record<string, any>) {
+    if (typeof window === undefined || !window.URL) return;
+    const url = setQueryToCurrentUrl(newParams);
+    if (window.location.search !== url.search) {
+      window.history.replaceState({}, '', url.toString());
     }
     if (urlSearchParams.toString() !== url.searchParams.toString()) {
       forceUpdate({});
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (typeof window === undefined || !window.URL) return;
     redirectToNewSearchParams({
       ...initial,
       ...params,
     });
   }, [params]);
 
-  const setParams = (params) => {
-    redirectToNewSearchParams(params);
+  const setParams = (newParams: any) => {
+    redirectToNewSearchParams(newParams);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (typeof window === undefined || !window.URL) return () => {};
+
     const onPopState = () => {
       forceUpdate({});
     };
-    getWindow().addEventListener("popstate", onPopState);
+    window.addEventListener('popstate', onPopState);
     return () => {
-      getWindow().removeEventListener("popstate", onPopState);
+      window.removeEventListener('popstate', onPopState);
     };
   }, []);
 
@@ -150,7 +130,12 @@ const booleanValues = {
   false: false,
 };
 
-function parseValue(key, _value, types, defaultParams) {
+function parseValue(
+  key: string | number,
+  _value: any,
+  types: Record<string, any>,
+  defaultParams: Record<string, any>,
+) {
   if (!types) return _value;
   const type = types[key];
   const value = _value === undefined ? defaultParams[key] : _value;
@@ -158,19 +143,12 @@ function parseValue(key, _value, types, defaultParams) {
   if (type === Number) {
     return Number(value);
   }
-  if (type === Boolean) {
+  if (type === Boolean || _value === 'true' || _value === 'false') {
     return booleanValues[value];
-  }
-  if (type === Date) {
-    return new Date(value);
   }
   if (Array.isArray(type)) {
     // eslint-disable-next-line eqeqeq
     return type.find((item) => item == value) || defaultParams[key];
   }
-  if (typeof type === "function") {
-    return type(value);
-  }
-
   return value;
 }
