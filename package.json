@@ -13,7 +13,7 @@
   "repository": "github:rudyhuynh/use-url-search-params",
   "license": "MIT",
   "author": "rudyhuynh <rudyhuynh@>",
-  "main": "es/index.js",
+  "main": "lib/index.js",
   "module": "es/index.js",
   "types": "es/index.d.ts",
   "files": [
@@ -21,15 +21,15 @@
   ],
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsc"
+    "build": "tsc && father-build"
   },
   "devDependencies": {
     "@types/react": "^17.0.1",
     "@umijs/fabric": "^2.5.6",
     "np": "^5.2.1",
+    "father-build": "^1.19.1",
     "typescript": "^4.0.0"
   },
-  "dependencies": {},
   "peerDependencies": {
     "react": "*"
   }
