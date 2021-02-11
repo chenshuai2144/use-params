@@ -34,7 +34,9 @@ function setQueryToCurrentUrl(params: Record<string, any>) {
   return url;
 }
 
-export function useUrlSearchParams(initial = {}) {
+export function useUrlSearchParams(
+  initial: Record<string, string | number> = {},
+): [Record<string, string | number>, (value: Record<string, string | number>) => void] {
   /**
    * The main idea of this hook is to make things response to change of `window.location.search`,
    * so no need for introducing new state (in the mean time).
@@ -53,7 +55,7 @@ export function useUrlSearchParams(initial = {}) {
     return new URLSearchParams(locationSearch || {});
   }, [locationSearch]);
 
-  const params = useMemo(() => {
+  const params: Record<string, string | number> = useMemo(() => {
     if (typeof window === undefined || !window.URL) return {};
     let result: any = [];
     // @ts-ignore
@@ -106,7 +108,7 @@ export function useUrlSearchParams(initial = {}) {
     });
   }, [params]);
 
-  const setParams = (newParams: any) => {
+  const setParams = (newParams: Record<string, string | number>) => {
     redirectToNewSearchParams(newParams);
   };
 
