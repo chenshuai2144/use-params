@@ -17,7 +17,8 @@
   "module": "es/index.js",
   "types": "es/index.d.ts",
   "files": [
-    "es"
+    "es",
+    "lib"
   ],
   "scripts": {
     "prepublish": "npm run build",
