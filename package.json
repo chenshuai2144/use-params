@@ -9,8 +9,8 @@
     "url",
     "state"
   ],
-  "bugs": "https://github.com/rudyhuynh/use-url-search-params/issues",
-  "repository": "github:rudyhuynh/use-url-search-params",
+  "bugs": "https://github.com/chenshuai2144/use-params/issues",
+  "repository": "https://github.com/chenshuai2144/use-params",
   "license": "MIT",
   "author": "rudyhuynh <rudyhuynh@>",
   "main": "lib/index.js",
