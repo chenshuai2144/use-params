@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
  * @returns {URL}
  */
 function setQueryToCurrentUrl(params: Record<string, any>) {
-  const { URL } = window; 
+  const { URL } = window;
   const url = new URL(window?.location?.href);
 
   Object.keys(params).forEach((key) => {
@@ -56,15 +56,15 @@ export function useUrlSearchParams(
   }, [locationSearch]);
 
   const params: Record<string, string | number> = useMemo(() => {
-    if (typeof window === "undefined" || !window.URL) return {};
+    if (typeof window === 'undefined' || !window.URL) return {};
     let result: any = [];
     // @ts-ignore
-    for (const item of urlSearchParams) {
+    urlSearchParams.forEach((value, key) => {
       result.push({
-        key: item[0],
-        value: item[1],
+        key,
+        value,
       });
-    }
+    });
 
     // group by key
     result = result.reduce((acc: any, val: any) => {
@@ -87,10 +87,10 @@ export function useUrlSearchParams(
     });
 
     return newParams;
-  }, [urlSearchParams]);
+  }, [initial, urlSearchParams]);
 
   function redirectToNewSearchParams(newParams: Record<string, any>) {
-    if (typeof window === "undefined" || !window.URL) return;
+    if (typeof window === 'undefined' || !window.URL) return;
     const url = setQueryToCurrentUrl(newParams);
     if (window.location.search !== url.search) {
       window.history.replaceState({}, '', url.toString());
@@ -101,7 +101,7 @@ export function useUrlSearchParams(
   }
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.URL) return;
+    if (typeof window === 'undefined' || !window.URL) return;
     redirectToNewSearchParams({
       ...initial,
       ...params,
@@ -113,7 +113,7 @@ export function useUrlSearchParams(
   };
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.URL) return () => {};
+    if (typeof window === 'undefined' || !window.URL) return () => {};
 
     const onPopState = () => {
       forceUpdate({});
