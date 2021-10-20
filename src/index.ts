@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
  * @returns {URL}
  */
 function setQueryToCurrentUrl(params: Record<string, any>) {
-  const { URL } = window;
+  const { URL } = typeof window !== 'undefined' ? window : ({} as any);
   const url = new URL(window?.location?.href);
 
   Object.keys(params).forEach((key) => {
@@ -46,7 +46,7 @@ export function useUrlSearchParams(
    */
   const [, forceUpdate] = useState<Record<string, any>>();
 
-  const locationSearch = window?.location?.search;
+  const locationSearch = typeof window !== 'undefined' && window?.location?.search;
 
   /**
    * @type {URLSearchParams}
