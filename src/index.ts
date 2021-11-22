@@ -57,7 +57,7 @@ export function useUrlSearchParams(
   const urlSearchParams = useMemo(() => {
     if (config.disabled) return {};
     return new URLSearchParams(locationSearch || {});
-  }, [locationSearch]);
+  }, [config.disabled, locationSearch]);
 
   const params: Record<string, string | number> = useMemo(() => {
     if (config.disabled) return {};
@@ -92,7 +92,7 @@ export function useUrlSearchParams(
     });
 
     return newParams;
-  }, [initial, urlSearchParams]);
+  }, [config.disabled, initial, urlSearchParams]);
 
   function redirectToNewSearchParams(newParams: Record<string, any>) {
     if (typeof window === 'undefined' || !window.URL) return;
@@ -112,7 +112,7 @@ export function useUrlSearchParams(
       ...initial,
       ...params,
     });
-  }, [params]);
+  }, [config.disabled, params]);
 
   const setParams = (newParams: Record<string, string | number>) => {
     redirectToNewSearchParams(newParams);
@@ -129,7 +129,7 @@ export function useUrlSearchParams(
     return () => {
       window.removeEventListener('popstate', onPopState);
     };
-  }, []);
+  }, [config.disabled]);
 
   return [params, setParams];
 }
