@@ -37,8 +37,8 @@ function setQueryToCurrentUrl(params: Record<string, any>) {
 export function useUrlSearchParams(
   initial: Record<string, string | number> = {},
   config: {
-    disabled: boolean;
-  },
+    disabled?: boolean;
+  } = { disabled: false },
 ): [Record<string, string | number>, (value: Record<string, string | number>) => void] {
   /**
    * The main idea of this hook is to make things response to change of `window.location.search`,
