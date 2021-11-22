@@ -36,6 +36,9 @@ function setQueryToCurrentUrl(params: Record<string, any>) {
 
 export function useUrlSearchParams(
   initial: Record<string, string | number> = {},
+  config: {
+    disabled: boolean;
+  },
 ): [Record<string, string | number>, (value: Record<string, string | number>) => void] {
   /**
    * The main idea of this hook is to make things response to change of `window.location.search`,
@@ -52,10 +55,12 @@ export function useUrlSearchParams(
    * @type {URLSearchParams}
    */
   const urlSearchParams = useMemo(() => {
+    if (config.disabled) return {};
     return new URLSearchParams(locationSearch || {});
   }, [locationSearch]);
 
   const params: Record<string, string | number> = useMemo(() => {
+    if (config.disabled) return {};
     if (typeof window === 'undefined' || !window.URL) return {};
     let result: any = [];
     // @ts-ignore
@@ -101,6 +106,7 @@ export function useUrlSearchParams(
   }
 
   useEffect(() => {
+    if (config.disabled) return;
     if (typeof window === 'undefined' || !window.URL) return;
     redirectToNewSearchParams({
       ...initial,
@@ -113,6 +119,7 @@ export function useUrlSearchParams(
   };
 
   useEffect(() => {
+    if (config.disabled) return () => {};
     if (typeof window === 'undefined' || !window.URL) return () => {};
 
     const onPopState = () => {
