@@ -98,7 +98,7 @@ export function useUrlSearchParams(
     if (typeof window === 'undefined' || !window.URL) return;
     const url = setQueryToCurrentUrl(newParams);
     if (window.location.search !== url.search) {
-      window.history.replaceState({}, '', url.toString());
+      window.history.replaceState(window.history.state, '', url.toString());
     }
     if (urlSearchParams.toString() !== url.searchParams.toString()) {
       forceUpdate({});
